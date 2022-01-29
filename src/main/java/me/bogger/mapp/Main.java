@@ -3,6 +3,8 @@ package me.bogger.mapp;
 import me.bogger.mapp.managers.PlayerManager;
 import me.bogger.mapp.tasks.PublishPlayerData;
 import me.bogger.mapp.utils.AnsiColor;
+import org.bukkit.ChatColor;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
@@ -17,10 +19,20 @@ public final class Main extends JavaPlugin {
         mappConfig = new MappConfig(this);
         PlayerManager playerManager = new PlayerManager(this);
         MappAPIServer mappAPIServer = new MappAPIServer(this, mappConfig);
-        if (!mappAPIServer.checkCredentials()) return;
 
-        PublishPlayerData publishPlayerData = new PublishPlayerData(this, mappConfig, mappAPIServer, playerManager);
-        publishPlayerData.runTaskTimerAsynchronously(this, 0, 60);
+        int publishPlayerDataPeriod = mappConfig.getConfig().getInt("players-data-publish-period");
+        if (publishPlayerDataPeriod == 0) {
+            log(Level.WARNING, "Config field <players-data-publish-period> is empty");
+            return;
+        }
+
+        getServer().getScheduler().runTaskLaterAsynchronously(this, () -> {
+            log(Level.INFO, "Validating credentials...");
+            if (!mappAPIServer.checkCredentials()) return;
+
+            PublishPlayerData publishPlayerData = new PublishPlayerData(this, mappConfig, mappAPIServer, playerManager);
+            publishPlayerData.runTaskTimerAsynchronously(this, 20, publishPlayerDataPeriod);
+        }, 0);
     }
 
     @Override
@@ -29,28 +41,31 @@ public final class Main extends JavaPlugin {
     }
 
     public void log(Level level, String msg) {
-        String ansiColor = "";
+        String messageColor = "";
         switch (level.getName()) {
             case "OFF":
             case "WARNING":
+                messageColor = AnsiColor.RED;
+                break;
             case "SEVERE":
-                ansiColor = AnsiColor.RED;
+                messageColor = AnsiColor.BACKGROUND_RED;
                 break;
             case "INFO":
             case "CONFIG":
-                ansiColor = AnsiColor.YELLOW;
+                messageColor = AnsiColor.YELLOW;
                 break;
             case "FINE":
-                ansiColor = AnsiColor.GREEN;
+                messageColor = AnsiColor.GREEN;
                 break;
             case "FINER":
             case "FINEST":
-                ansiColor = AnsiColor.GREEN + AnsiColor.Bold;
+                messageColor = AnsiColor.GREEN + AnsiColor.HIGH_INTENSITY;
                 break;
             case "ALL":
-                ansiColor = AnsiColor.YELLOW + AnsiColor.Bold;
+                messageColor = AnsiColor.BACKGROUND_YELLOW;
                 break;
         }
-        getServer().getLogger().log(level, "[mApp] " + ansiColor + msg + AnsiColor.RESET);
+        ConsoleCommandSender sender = getServer().getConsoleSender();
+        sender.sendMessage("[mApp] " + messageColor + msg + AnsiColor.RESET);
     }
 }

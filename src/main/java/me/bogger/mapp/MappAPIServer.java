@@ -61,10 +61,9 @@ public class MappAPIServer {
         request.setHeader("api-key", apiKey);
         try {
             CloseableHttpResponse response = client.execute(request);
-            client.close();
 
             if (response.getStatusLine().getStatusCode() == 401) {
-                plugin.log(Level.WARNING, "Failed to validate provided credentials");
+                plugin.log(Level.WARNING, "Authentication failure. Check if field values of <api-key> and <server-ip> are valid");
                 return false;
             }
 
@@ -72,10 +71,10 @@ public class MappAPIServer {
             String serverName = jsonResponse.get("name").getAsString();
             String serverID = jsonResponse.get("id").getAsString();
 
-            plugin.log(Level.FINE, "Successfully authorized as " + serverName + " <" + serverID + ">");
+            plugin.log(Level.FINER, "Successfully authorized as '" + serverName + "' <" + serverID + ">");
             return true;
         } catch (IOException e) {
-            plugin.log(Level.WARNING, "Failed to get response from MAPP server");
+            plugin.log(Level.WARNING, "Failed to get request from MAPP server. " + e.getMessage());
             return false;
         }
     }
