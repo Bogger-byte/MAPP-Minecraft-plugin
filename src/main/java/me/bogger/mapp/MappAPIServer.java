@@ -1,47 +1,87 @@
 package me.bogger.mapp;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.sun.istack.internal.NotNull;
+
+import org.apache.commons.codec.Charsets;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 
 
 public class MappAPIServer {
 
+    private final Main plugin;
+
     private final String mappRootHost;
     private final String serverIP;
     private final String apiKey;
 
-    private final CloseableHttpClient client;
-
     public MappAPIServer(Main plugin, @NotNull MappConfig mappConfig) {
+        this.plugin = plugin;
+
         this.mappRootHost = mappConfig.getConfig().getString("mapp-root-host");
         if (this.mappRootHost == null) {
             plugin.log(Level.WARNING, "mApp server field <mapp-root-host> is empty");
-            plugin.selfDisable("Disabling due miss of required config values");
         }
         this.serverIP = mappConfig.getConfig().getString("server-ip");
         if (this.serverIP == null) {
             plugin.log(Level.WARNING, "Authentication field <server-ip> is empty");
-            plugin.selfDisable("Disabling due miss of required config values");
         }
-        this.apiKey = mappConfig.getConfig().getString("apiKey");
+        this.apiKey = mappConfig.getConfig().getString("api-key");
         if (this.apiKey == null) {
             plugin.log(Level.WARNING, "Authentication field <api-key> is empty");
-            plugin.selfDisable("Disabling due miss of required config values");
         }
+    }
 
-        this.client = HttpClients.createDefault();
+    private JsonObject fetchJsonObject(HttpEntity entity) throws IOException {
+        String jsonString = EntityUtils.toString(entity, StandardCharsets.UTF_8);
+        Gson gson = new Gson();
+        return gson.fromJson(jsonString, JsonObject.class);
+    }
+
+    public boolean checkCredentials() {
+        CloseableHttpClient client = HttpClients.createDefault();
+        String url = mappRootHost + "/server/" + serverIP + "/check-credentials";
+        HttpGet request = new HttpGet(url);
+
+        request.setHeader("api-key", apiKey);
+        try {
+            CloseableHttpResponse response = client.execute(request);
+            client.close();
+
+            if (response.getStatusLine().getStatusCode() == 401) {
+                plugin.log(Level.WARNING, "Failed to validate provided credentials");
+                return false;
+            }
+
+            JsonObject jsonResponse = fetchJsonObject(response.getEntity());
+            String serverName = jsonResponse.get("name").getAsString();
+            String serverID = jsonResponse.get("id").getAsString();
+
+            plugin.log(Level.FINE, "Successfully authorized as " + serverName + " <" + serverID + ">");
+            return true;
+        } catch (IOException e) {
+            plugin.log(Level.WARNING, "Failed to get response from MAPP server");
+            return false;
+        }
     }
 
     public StatusLine publishPlayersData(@NotNull JsonObject jsonData) throws IOException {
+        CloseableHttpClient client = HttpClients.createDefault();
         String url = mappRootHost + "/server/" + serverIP + "/players-data";
         HttpPost request = new HttpPost(url);
 
@@ -53,6 +93,7 @@ public class MappAPIServer {
         request.setHeader("api-key", apiKey);
 
         CloseableHttpResponse response = client.execute(request);
+        client.close();
         return response.getStatusLine();
     }
 }

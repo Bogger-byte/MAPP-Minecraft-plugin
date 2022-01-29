@@ -1,7 +1,7 @@
 package me.bogger.mapp.tasks;
 
 import com.google.gson.JsonObject;
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
 import me.bogger.mapp.Main;
 import me.bogger.mapp.MappAPIServer;
 import me.bogger.mapp.MappConfig;
@@ -31,7 +31,6 @@ public class PublishPlayerData extends BukkitRunnable {
         this.maxPublishAttempts = mappConfig.getConfig().getInt("max-publish-attempts");
         if (this.maxPublishAttempts == 0) {
             plugin.log(Level.WARNING, "Config field <max-publish-attempts> is empty");
-            plugin.selfDisable("Disabling due miss of required config values");
         }
     }
 
@@ -42,16 +41,16 @@ public class PublishPlayerData extends BukkitRunnable {
         JsonObject playerDataObject = playerManager.gatherPlayersData();
         try {
             StatusLine responseStatus = mappAPIServer.publishPlayersData(playerDataObject);
-            if (responseStatus.getStatusCode() == 403) {
+            if (responseStatus.getStatusCode() == 401) {
                 plugin.log(Level.SEVERE, "Authentication failure. Check if field values of <api-key> and <server-ip> are valid");
-                plugin.selfDisable("Disabling due authentication failure");
+                cancel();
             }
-            System.out.println(responseStatus.getReasonPhrase());
         } catch (ClientProtocolException e) {
             publishAttempts += 1;
             plugin.log(Level.INFO, "[Attempt " + publishAttempts + "] Trying to reconnect");
             if (publishAttempts >= maxPublishAttempts) {
-                plugin.selfDisable("Disabling due MAPP server problems");
+                plugin.log(Level.WARNING, "Disabling due MAPP server problems");
+                cancel();
             }
         } catch (IOException e) {
             plugin.log(Level.WARNING, "Failed to publish players data");

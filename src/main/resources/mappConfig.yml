@@ -13,4 +13,4 @@ api-key:
 # YOUR SERVER
 # Delay between players data publishing in seconds
 players-data-publish-delay: 3
-max-publish-attemtps: 5
+max-publish-attempts: 5

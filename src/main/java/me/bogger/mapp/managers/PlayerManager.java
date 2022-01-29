@@ -38,7 +38,6 @@ public class PlayerManager {
         }
         JsonObject playerDataObject = new JsonObject();
         playerDataObject.add("players_data", playerDataList);
-        System.out.println(playerDataObject);
         return playerDataObject;
     }
 
