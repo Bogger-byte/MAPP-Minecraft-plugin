@@ -1,0 +1,12 @@
+name: mApp
+version: ${project.version}
+main: me.bogger.mapp.Main
+api-version: 1.16
+authors: [ Bogger ]
+description: None
+website: None
+commands:
+  reauthenticate:
+    description: Tries to reauthenticate at MAPP server
+    usage: /<command>
+    aliases: None

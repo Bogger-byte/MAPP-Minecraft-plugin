@@ -1,0 +1,16 @@
+# MAPP SERVER
+mapp-root-host: "http://localhost:8080"
+
+
+# AUTHENTICATION
+# @ server-ip: "Your server host ip, like 127.0.0.1:25565"
+# @ api-key: "Server's API key"
+# You can get more information on our website
+server-ip:
+api-key:
+
+
+# YOUR SERVER
+# Delay between players data publishing in seconds
+players-data-publish-delay: 3
+max-publish-attemtps: 5
