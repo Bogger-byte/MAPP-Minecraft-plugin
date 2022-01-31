@@ -6,7 +6,7 @@ authors: [ Bogger ]
 description: None
 website: None
 commands:
-  reauthenticate:
-    description: Tries to reauthenticate at MAPP server
-    usage: /<command>
+  force-visible:
+    description: Makes player visible to everybody on the MAPP server
+    usage: /<command> boolean
     aliases: None

@@ -14,3 +14,9 @@ api-key:
 # Delay between players data publishing in ticks (20 ticks = 1 second)
 players-data-publish-period: 20
 max-publish-attempts: 5
+region-images-publish-period: 60
+
+
+# FORCE VISIBLE PLAYERS
+# Players in this list will be force visible on MAP server
+force-visible-players:

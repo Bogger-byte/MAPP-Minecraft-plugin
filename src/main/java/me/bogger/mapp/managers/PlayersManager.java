@@ -2,32 +2,31 @@ package me.bogger.mapp.managers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import me.bogger.mapp.MappConfig;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class PlayerManager {
+public class PlayersManager {
 
     private final Plugin plugin;
 
-    private final HashSet<UUID> forceVisiblePlayers;
+    private final MappConfig config;
 
-    public PlayerManager(Plugin plugin) {
+    public PlayersManager(Plugin plugin, MappConfig config) {
         this.plugin = plugin;
 
-        this.forceVisiblePlayers = new HashSet<>();
+        this.config = config;
     }
 
-    public void markAsForceVisible(UUID playerUuid) {
-        if (forceVisiblePlayers.contains(playerUuid)) return;
-        forceVisiblePlayers.add(playerUuid);
-    }
-
-    public void markAsDefault(UUID playerUuid) {
-        forceVisiblePlayers.remove(playerUuid);
+    private Set<UUID> getForceVisiblePlayersList() {
+        List<String> forceVisiblePlayersList = config.getConfig().getStringList("force-visible-players");
+        return forceVisiblePlayersList.stream().map(UUID::fromString).collect(Collectors.toSet());
     }
 
     public JsonObject gatherPlayersData() {
@@ -43,7 +42,7 @@ public class PlayerManager {
 
     public JsonObject getPlayerData(Player player) {
         UUID uuid = player.getUniqueId();
-        boolean isForceVisible = forceVisiblePlayers.contains(uuid);
+        boolean isForceVisible = getForceVisiblePlayersList().contains(uuid);
         String nickname = player.getName();
 
         Location playerLoc = player.getLocation();
