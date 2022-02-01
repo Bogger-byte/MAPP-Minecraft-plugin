@@ -67,16 +67,21 @@ public class MappConfig {
             plugin.log(Level.WARNING, "Required config field <api-key> is empty");
             success = false;
         }
+        if (config.get("publish-players-data") == null) {
+            plugin.log(Level.WARNING, "Required config field <publish-players-data> is empty");
+            success = false;
+        }
         if (config.get("players-data-publish-period") == null) {
             plugin.log(Level.WARNING, "Required config field <players-data-publish-period> is empty");
             success = false;
         }
-        if (config.get("max-publish-attempts") == null) {
-            plugin.log(Level.WARNING, "Required config field <max-publish-attempts> is empty");
+        if (config.get("publish-regions-data") == null) {
+            plugin.log(Level.WARNING, "Required config field <publish-region-data> is empty");
             success = false;
         }
         if (config.get("region-images-publish-period") == null) {
             plugin.log(Level.WARNING, "Required config field <region-images-publish-period> does not exist");
+            success = false;
         }
         if (config.getList("force-visible-players") == null) {
             plugin.log(Level.WARNING, "Required config field <force-visible-players> does not exist");

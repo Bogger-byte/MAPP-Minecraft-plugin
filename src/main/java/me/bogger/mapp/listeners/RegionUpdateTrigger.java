@@ -1,7 +1,9 @@
 package me.bogger.mapp.listeners;
 
 import me.bogger.mapp.Main;
+import me.bogger.mapp.Region;
 import me.bogger.mapp.events.RegionUpdateEvent;
+import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -18,23 +20,17 @@ public class RegionUpdateTrigger implements Listener {
 
     @EventHandler
     public void handleBlockBreakEvent(BlockBreakEvent event) {
-        int regionX = event.getBlock().getChunk().getX() >> 5;
-        int regionZ = event.getBlock().getChunk().getZ() >> 5;
+        Location loc = Region.getLocation(event.getBlock().getChunk());
         RegionUpdateEvent regionUpdateEvent = new RegionUpdateEvent(
-                event.getBlock().getWorld(),
-                regionX,
-                regionZ);
+                new Region(event.getBlock().getWorld(), loc.getX(), loc.getZ()));
         plugin.getServer().getPluginManager().callEvent(regionUpdateEvent);
     }
 
     @EventHandler
     public void handleBlockPlaceEvent(BlockPlaceEvent event) {
-        int regionX = event.getBlock().getChunk().getX() >> 5;
-        int regionZ = event.getBlock().getChunk().getZ() >> 5;
+        Location loc = Region.getLocation(event.getBlock().getChunk());
         RegionUpdateEvent regionUpdateEvent = new RegionUpdateEvent(
-                event.getBlock().getWorld(),
-                regionX,
-                regionZ);
+                new Region(event.getBlock().getWorld(), loc.getX(), loc.getZ()));
         plugin.getServer().getPluginManager().callEvent(regionUpdateEvent);
     }
 
@@ -42,12 +38,9 @@ public class RegionUpdateTrigger implements Listener {
     public void handleChunkLoadEvent(ChunkLoadEvent event) {
         if (!event.isNewChunk()) return;
 
-        int regionX = event.getChunk().getX() >> 5;
-        int regionZ = event.getChunk().getZ() >> 5;
+        Location loc = Region.getLocation(event.getChunk());
         RegionUpdateEvent regionUpdateEvent = new RegionUpdateEvent(
-                event.getWorld(),
-                regionX,
-                regionZ);
+                new Region(event.getWorld(), loc.getX(), loc.getZ()));
         plugin.getServer().getPluginManager().callEvent(regionUpdateEvent);
     }
 }

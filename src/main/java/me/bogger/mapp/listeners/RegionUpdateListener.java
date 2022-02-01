@@ -15,6 +15,6 @@ public class RegionUpdateListener implements Listener {
 
     @EventHandler
     public void handleRegionUpdateEvent(RegionUpdateEvent event) {
-        regionsManager.addUpdatedRegion(event.getWorld(), event.getX(), event.getZ());
+        regionsManager.addUpdatedRegion(event.getRegion());
     }
 }

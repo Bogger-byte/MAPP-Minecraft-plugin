@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.logging.Level;
 
 
@@ -70,7 +72,8 @@ public class MappAPIServer {
         }
     }
 
-    public StatusLine publishPlayersData(@NotNull JsonObject jsonData) throws IOException {
+    public StatusLine publishPlayersData(@NotNull JsonObject jsonData)
+            throws IOException, AuthenticationException {
         CloseableHttpClient client = HttpClients.createDefault();
         String url = mappRootHost + "/server/" + serverIP + "/players-data";
         HttpPost request = new HttpPost(url);
@@ -80,32 +83,32 @@ public class MappAPIServer {
         request.setEntity(entity);
         request.setHeader("api-key", apiKey);
 
+
         HttpResponse response = client.execute(request);
-        client.close();
-        return response.getStatusLine();
+        StatusLine responseStatus = response.getStatusLine();
+        if (responseStatus.getStatusCode() == 401) throw new AuthenticationException();
+        return responseStatus;
     }
 
-    public StatusLine publishRegionImage(@NotNull File image,
-                                         String worldName,
-                                         int regionX,
-                                         int regionZ) throws IOException {
+    public StatusLine publishRegionImages(@NotNull List<File> imageList)
+            throws IOException, AuthenticationException {
         CloseableHttpClient client = HttpClients.createDefault();
-        String url = mappRootHost + "/server/" + serverIP + "/upload-region-image" +
-                "?world=" + worldName +
-                "&region_x=" + regionX +
-                "&region_z=" + regionZ;
+        String url = mappRootHost + "/server/" + serverIP + "/upload-region-image";
         HttpPost request = new HttpPost(url);
 
-        FileBody imageBody = new FileBody(image, ContentType.IMAGE_PNG);
         MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
         entityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        entityBuilder.addPart("image", imageBody);
-
+        for (File image : imageList) {
+            String fileName = image.getName().split("=")[1];
+            FileBody fileBody = new FileBody(image, ContentType.IMAGE_PNG, fileName);
+            entityBuilder.addPart("region_images", fileBody);
+        }
         request.setEntity(entityBuilder.build());
         request.setHeader("api-key", apiKey);
 
         HttpResponse response = client.execute(request);
-        client.close();
-        return response.getStatusLine();
+        StatusLine responseStatus = response.getStatusLine();
+        if (responseStatus.getStatusCode() == 401) throw new AuthenticationException();
+        return responseStatus;
     }
 }

@@ -1,6 +1,6 @@
 package me.bogger.mapp.events;
 
-import org.bukkit.World;
+import me.bogger.mapp.Region;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -9,14 +9,10 @@ public class RegionUpdateEvent extends Event {
 
     private static final HandlerList handlerList = new HandlerList();
 
-    private final World world;
-    private final int x;
-    private final int z;
+    private final Region region;
 
-    public RegionUpdateEvent(World world, int x, int z) {
-        this.world = world;
-        this.x = x;
-        this.z = z;
+    public RegionUpdateEvent(Region region) {
+        this.region = region;
     }
 
     @NotNull
@@ -29,15 +25,7 @@ public class RegionUpdateEvent extends Event {
         return handlerList;
     }
 
-    public int getX() {
-        return x;
-    }
-
-    public int getZ() {
-        return z;
-    }
-
-    public World getWorld() {
-        return world;
+    public Region getRegion() {
+        return region;
     }
 }

@@ -5,6 +5,7 @@ import me.bogger.mapp.Main;
 import me.bogger.mapp.MappAPIServer;
 import me.bogger.mapp.managers.PlayersManager;
 import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthenticationException;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,11 +32,10 @@ public class PublishPlayerData extends BukkitRunnable {
     public void run() {
         JsonObject playerDataObject = playerManager.gatherPlayersData();
         try {
-            StatusLine responseStatus = mappAPIServer.publishPlayersData(playerDataObject);
-            if (responseStatus.getStatusCode() == 401) {
-                plugin.log(Level.SEVERE, "Authentication failure. Check if field values of <api-key> and <server-ip> are valid");
-                cancel();
-            }
+            mappAPIServer.publishPlayersData(playerDataObject);
+        } catch (AuthenticationException e) {
+            plugin.log(Level.WARNING, "Authentication failure. Check if field values of <api-key> and <server-ip> are valid");
+            cancel();
         } catch (IOException e) {
             publishAttempts += 1;
             plugin.log(Level.WARNING, "Failed to publish players data");

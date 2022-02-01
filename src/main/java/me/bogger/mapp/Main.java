@@ -1,13 +1,14 @@
 package me.bogger.mapp;
 
 import me.bogger.mapp.commands.ForceVisibleCommand;
+import me.bogger.mapp.commands.PublishAllRegionsCommand;
 import me.bogger.mapp.listeners.RegionUpdateListener;
 import me.bogger.mapp.listeners.RegionUpdateTrigger;
 import me.bogger.mapp.managers.CommandsManager;
 import me.bogger.mapp.managers.PlayersManager;
 import me.bogger.mapp.managers.RegionsManager;
 import me.bogger.mapp.tasks.PublishPlayerData;
-import me.bogger.mapp.tasks.PublishRegionImages;
+import me.bogger.mapp.tasks.PublishUpdatedRegions;
 import me.bogger.mapp.utils.AnsiColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -38,7 +39,9 @@ public final class Main extends JavaPlugin {
 
         regionsManager = new RegionsManager();
         playersManager = new PlayersManager(this, mappConfig);
-        commandsManager = new CommandsManager(new ForceVisibleCommand(mappConfig));
+        commandsManager = new CommandsManager(
+                new ForceVisibleCommand(mappConfig),
+                new PublishAllRegionsCommand(this, mappAPIServer, mappImage));
 
         regionUpdateTrigger = new RegionUpdateTrigger(this);
         regionUpdateListener = new RegionUpdateListener(regionsManager);
@@ -47,6 +50,7 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         getCommand("force-visible").setExecutor(commandsManager);
+        getCommand("publish-all-regions").setExecutor(commandsManager);
 
         getServer().getPluginManager().registerEvents(regionUpdateTrigger, this);
         getServer().getPluginManager().registerEvents(regionUpdateListener, this);
@@ -54,15 +58,17 @@ public final class Main extends JavaPlugin {
         if (!mappConfig.checkConfigForRequiredFields()) return;
         int publishPlayerDataPeriod = mappConfig.getConfig().getInt("players-data-publish-period");
         int publishRegionImagesPeriod = mappConfig.getConfig().getInt("region-images-publish-period");
+        boolean publishPlayersData = mappConfig.getConfig().getBoolean("publish-players-data");
+        boolean publishRegionsData = mappConfig.getConfig().getBoolean("publish-regions-data");
 
         log(Level.INFO, "Validating credentials...");
         if (!mappAPIServer.checkCredentials()) return;
 
         log(Level.INFO, "Starting data publishing tasks...");
-        new PublishPlayerData(this, mappAPIServer, playersManager)
-                .runTaskTimerAsynchronously(this, 20, publishPlayerDataPeriod);
-        new PublishRegionImages(this, mappAPIServer, mappImage, regionsManager)
-                .runTaskTimerAsynchronously(this, 20, publishRegionImagesPeriod);
+        if (publishPlayersData) new PublishPlayerData(this, mappAPIServer, playersManager)
+                    .runTaskTimerAsynchronously(this, 20, publishPlayerDataPeriod);
+        if (publishRegionsData) new PublishUpdatedRegions(this, mappAPIServer, mappImage, regionsManager)
+                    .runTaskTimerAsynchronously(this, 20, publishRegionImagesPeriod);
     }
 
     @Override
