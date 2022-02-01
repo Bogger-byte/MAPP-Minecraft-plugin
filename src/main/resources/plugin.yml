@@ -8,5 +8,9 @@ website: None
 commands:
   force-visible:
     description: Makes player visible to everybody on the MAPP server
-    usage: /<command> boolean
+    usage: /<command> true/false
+    aliases: None
+  publish-all-regions:
+    description: Loads all regions of specific world to MAPP server
+    usage: /<command> world-name
     aliases: None
