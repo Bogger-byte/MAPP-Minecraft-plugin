@@ -1,6 +1,6 @@
 package me.bogger.mapp.events;
 
-import me.bogger.mapp.Region;
+import me.bogger.mapp.region.Region;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;

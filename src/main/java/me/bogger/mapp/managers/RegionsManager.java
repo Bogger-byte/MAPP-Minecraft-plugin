@@ -1,6 +1,6 @@
 package me.bogger.mapp.managers;
 
-import me.bogger.mapp.Region;
+import me.bogger.mapp.region.Region;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,9 @@ public class RegionsManager {
     }
 
     public void addUpdatedRegion(Region region) {
-        if (updatedRegionList.contains(region)) return;
+        if (updatedRegionList.contains(region)) {
+            return;
+        }
         updatedRegionList.add(region);
     }
 

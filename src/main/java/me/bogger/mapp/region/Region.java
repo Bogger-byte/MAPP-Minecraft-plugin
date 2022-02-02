@@ -1,8 +1,9 @@
-package me.bogger.mapp;
+package me.bogger.mapp.region;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -11,32 +12,30 @@ import java.nio.file.Paths;
 public final class Region {
 
     private final File file;
-    private final Location location;
-    private final Path folder;
+    private final String name;
 
-    public Region(World world, double x, double z) {
-        this.file = new File(getRegionsFolderPath(world).toString(), "/r." + x + "." + z + ".mca");
-        this.location = new Location(world, x, 0, z);
-        this.folder = getRegionsFolderPath(world);
+    public Region(@NotNull World world, int x, int z) {
+        this.file = new File(getRegionsFolderPath(world).toString(), "r." + x + "." + z + ".mca");
+        this.name = world.getName() + "_" + "r." + x + "." + z + ".mca";
     }
 
     public Region(World world, File regionFile) {
         this.file = regionFile;
-
-        String[] split = regionFile.getName().split("\\.");
-        int regionX = Integer.parseInt(split[1]);
-        int regionZ = Integer.parseInt(split[2]);
-        this.location = new Location(world, regionX, 0, regionZ);
-        this.folder = getRegionsFolderPath(world);
+        this.name = world.getName() + "_" + regionFile.getName();
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) return false;
-        if (obj.getClass() != this.getClass()) return false;
-
+        if (obj == null) {
+            return false;
+        }
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
         final Region other = (Region) obj;
-        if (other.file == null) return false;
+        if (other.file == null) {
+            return false;
+        }
         return other.file.getName().equals(this.file.getName());
     }
 
@@ -61,11 +60,8 @@ public final class Region {
         return file;
     }
 
-    public Location getLocation() {
-        return location;
-    }
-
-    public Path getFolder() {
-        return folder;
+    public String getName() {
+        return name;
     }
 }
+

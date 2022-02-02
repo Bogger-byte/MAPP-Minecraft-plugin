@@ -39,7 +39,6 @@ public class ForceVisibleCommand implements CommandExecutor {
             config.getConfig().set("force-visible-players", playersList);
             config.save();
         }
-
         return false;
     }
 }

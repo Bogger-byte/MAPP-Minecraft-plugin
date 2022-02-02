@@ -5,6 +5,7 @@ import me.bogger.mapp.commands.PublishAllRegionsCommand;
 import me.bogger.mapp.listeners.RegionUpdateListener;
 import me.bogger.mapp.listeners.RegionUpdateTrigger;
 import me.bogger.mapp.managers.CommandsManager;
+import me.bogger.mapp.region.RegionImage;
 import me.bogger.mapp.managers.PlayersManager;
 import me.bogger.mapp.managers.RegionsManager;
 import me.bogger.mapp.tasks.PublishPlayerData;
@@ -24,7 +25,7 @@ public final class Main extends JavaPlugin {
     private MappAPIServer mappAPIServer;
 
     private RegionsManager regionsManager;
-    private MappImage mappImage;
+    private RegionImage mappImage;
     private CommandsManager commandsManager;
 
     private RegionUpdateTrigger regionUpdateTrigger;
@@ -35,7 +36,7 @@ public final class Main extends JavaPlugin {
         mappConfig = new MappConfig(this);
 
         mappAPIServer = new MappAPIServer(this, mappConfig);
-        mappImage = new MappImage(this);
+        mappImage = new RegionImage(this);
 
         regionsManager = new RegionsManager();
         playersManager = new PlayersManager(this, mappConfig);

@@ -2,8 +2,8 @@ package me.bogger.mapp.tasks;
 
 import me.bogger.mapp.Main;
 import me.bogger.mapp.MappAPIServer;
-import me.bogger.mapp.MappImage;
-import me.bogger.mapp.Region;
+import me.bogger.mapp.region.RegionImage;
+import me.bogger.mapp.region.Region;
 import me.bogger.mapp.managers.RegionsManager;
 import org.apache.http.auth.AuthenticationException;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -18,12 +18,12 @@ public class PublishUpdatedRegions extends BukkitRunnable {
 
     private final Main plugin;
     private final MappAPIServer mappAPIServer;
-    private final MappImage mappImage;
+    private final RegionImage mappImage;
     private final RegionsManager regionsManager;
 
     public PublishUpdatedRegions(Main plugin,
                                  @NotNull MappAPIServer mappAPIServer,
-                                 @NotNull MappImage mappImage,
+                                 @NotNull RegionImage mappImage,
                                  @NotNull RegionsManager regionsManager) {
         this.plugin = plugin;
         this.mappAPIServer = mappAPIServer;
@@ -36,11 +36,15 @@ public class PublishUpdatedRegions extends BukkitRunnable {
     @Override
     public void run() {
         List<Region> regionList = regionsManager.getUpdatedRegionList();
+        if (regionList.isEmpty()) {
+            return;
+        }
 
-        if (regionList.isEmpty()) return;
-
-        List<File> regionImageList = mappImage.compileRegionsToImages(regionList);
-        if (regionImageList.isEmpty()) return;
+        System.out.println(regionList);
+        List<File> regionImageList = mappImage.compileRegionsAsynchronously(regionList);
+        if (regionImageList.isEmpty()) {
+            return;
+        }
 
         try {
             mappAPIServer.publishRegionImages(regionImageList);

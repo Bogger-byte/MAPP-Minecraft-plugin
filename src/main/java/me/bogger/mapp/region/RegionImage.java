@@ -1,29 +1,26 @@
-package me.bogger.mapp;
+package me.bogger.mapp.region;
 
-import org.jetbrains.annotations.NotNull;
+import me.bogger.mapp.Main;
 
 import java.io.*;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class MappImage {
+public class RegionImage {
 
     private final Main plugin;
 
-    public MappImage(Main plugin) {
+    public RegionImage(Main plugin) {
         this.plugin = plugin;
     }
 
     private File createFakeImageFile(Region region) throws IOException {
         File regionFile = region.getFile();
-        if (region.getLocation().getWorld() == null) return null;
-        String worldName = region.getLocation().getWorld().getName();
-        String regionName = worldName + "_" + regionFile.getName() + ".png";
         File imageFile = File.createTempFile(
                 "tmp-",
-                "=" + regionName,
+                "=" + region.getName() + ".png",
                 Paths.get(plugin.getDataFolder().getPath() + "/render/").toFile());
         imageFile.deleteOnExit();
 
@@ -38,19 +35,23 @@ public class MappImage {
         return imageFile;
     }
 
-    public File compileRegionToImage(Region region) {
+    private File compileRegionToImage(Region region) {
         try {
+            Thread.sleep(1000); // making fake activity
             return createFakeImageFile(region);
-        } catch (IOException e) {
-            return null;
+        } catch (IOException | InterruptedException e) {
+            return region.getFile();
         }
     }
 
-    public List<File> compileRegionsToImages(List<Region> regionList) {
-        if (regionList.isEmpty()) return Collections.emptyList();
-        List<File> imageList = regionList.stream().map(this::compileRegionToImage).collect(Collectors.toList());
-        imageList.removeAll(Collections.singleton(null));
-        return imageList;
+    public List<File> compileRegionsAsynchronously(List<Region> regionList) {
+        List<CompletableFuture<File>> futureList = regionList.stream().map(
+                region -> CompletableFuture.supplyAsync(
+                        () -> compileRegionToImage(region)))
+                .collect(Collectors.toList());
+        return futureList.stream().map(CompletableFuture::join)
+                .collect(Collectors.toList());
     }
-
 }
+
+

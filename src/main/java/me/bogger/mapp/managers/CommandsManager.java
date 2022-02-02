@@ -26,11 +26,13 @@ public class CommandsManager implements CommandExecutor {
                              @NotNull String label,
                              String[] args) {
         if (sender instanceof Player
-                && command.getName().equalsIgnoreCase("force-visible"))
+                && command.getName().equalsIgnoreCase("force-visible")) {
             forceVisibleSwitchCommand.execute(sender, args);
+        }
         if (sender instanceof ConsoleCommandSender
-                && command.getName().equalsIgnoreCase("publish-all-regions"))
+                && command.getName().equalsIgnoreCase("publish-all-regions")) {
             publishAllRegionsCommand.execute(sender, args);
+        }
         return true;
     }
 }

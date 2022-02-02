@@ -1,7 +1,7 @@
 package me.bogger.mapp.listeners;
 
 import me.bogger.mapp.Main;
-import me.bogger.mapp.Region;
+import me.bogger.mapp.region.Region;
 import me.bogger.mapp.events.RegionUpdateEvent;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -22,7 +22,7 @@ public class RegionUpdateTrigger implements Listener {
     public void handleBlockBreakEvent(BlockBreakEvent event) {
         Location loc = Region.getLocation(event.getBlock().getChunk());
         RegionUpdateEvent regionUpdateEvent = new RegionUpdateEvent(
-                new Region(event.getBlock().getWorld(), loc.getX(), loc.getZ()));
+                new Region(event.getBlock().getWorld(), (int) loc.getX(), (int) loc.getZ()));
         plugin.getServer().getPluginManager().callEvent(regionUpdateEvent);
     }
 
@@ -30,7 +30,7 @@ public class RegionUpdateTrigger implements Listener {
     public void handleBlockPlaceEvent(BlockPlaceEvent event) {
         Location loc = Region.getLocation(event.getBlock().getChunk());
         RegionUpdateEvent regionUpdateEvent = new RegionUpdateEvent(
-                new Region(event.getBlock().getWorld(), loc.getX(), loc.getZ()));
+                new Region(event.getBlock().getWorld(), (int) loc.getX(), (int) loc.getZ()));
         plugin.getServer().getPluginManager().callEvent(regionUpdateEvent);
     }
 
@@ -40,7 +40,7 @@ public class RegionUpdateTrigger implements Listener {
 
         Location loc = Region.getLocation(event.getChunk());
         RegionUpdateEvent regionUpdateEvent = new RegionUpdateEvent(
-                new Region(event.getWorld(), loc.getX(), loc.getZ()));
+                new Region(event.getWorld(), (int) loc.getX(), (int) loc.getZ()));
         plugin.getServer().getPluginManager().callEvent(regionUpdateEvent);
     }
 }
