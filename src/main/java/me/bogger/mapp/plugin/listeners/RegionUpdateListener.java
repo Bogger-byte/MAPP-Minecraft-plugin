@@ -1,7 +1,8 @@
-package me.bogger.mapp.listeners;
+package me.bogger.mapp.plugin.listeners;
 
-import me.bogger.mapp.events.RegionUpdateEvent;
-import me.bogger.mapp.managers.RegionsManager;
+import me.bogger.mapp.plugin.managers.RegionsManager;
+import me.bogger.mapp.plugin.Main;
+import me.bogger.mapp.plugin.events.RegionUpdateEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -9,8 +10,8 @@ public class RegionUpdateListener implements Listener {
 
     private final RegionsManager regionsManager;
 
-    public RegionUpdateListener(RegionsManager regionsManager) {
-        this.regionsManager = regionsManager;
+    public RegionUpdateListener() {
+        this.regionsManager = Main.getInstance().getRegionsManager();
     }
 
     @EventHandler
