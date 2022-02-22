@@ -6,8 +6,10 @@ mapp-root-host: "http://localhost:8080"
 # @ server-ip: "Your server host ip, like 127.0.0.1:25565"
 # @ api-key: "Server's API key"
 # You can get more information on our website
-server-ip:
-api-key:
+username:
+password:
+client-id:
+client-secret:
 
 
 # YOUR SERVER
