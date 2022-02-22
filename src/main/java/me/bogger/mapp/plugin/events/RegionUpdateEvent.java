@@ -1,6 +1,6 @@
-package me.bogger.mapp.events;
+package me.bogger.mapp.plugin.events;
 
-import me.bogger.mapp.region.Region;
+import me.bogger.mapp.objects.RegionFile;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -9,9 +9,9 @@ public class RegionUpdateEvent extends Event {
 
     private static final HandlerList handlerList = new HandlerList();
 
-    private final Region region;
+    private final RegionFile region;
 
-    public RegionUpdateEvent(Region region) {
+    public RegionUpdateEvent(RegionFile region) {
         this.region = region;
     }
 
@@ -25,7 +25,7 @@ public class RegionUpdateEvent extends Event {
         return handlerList;
     }
 
-    public Region getRegion() {
+    public RegionFile getRegion() {
         return region;
     }
 }
