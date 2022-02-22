@@ -1,4 +1,4 @@
-package me.bogger.mapp.region;
+package me.bogger.mapp.objects;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -6,21 +6,21 @@ import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public final class Region {
-
-    private final File file;
+public class RegionFile extends File {
     private final String name;
 
-    public Region(@NotNull World world, int x, int z) {
-        this.file = new File(getRegionsFolderPath(world).toString(), "r." + x + "." + z + ".mca");
+    public RegionFile(@NotNull World world, int x, int z) {
+        super(getRegionsFolderPath(world).toString(), "r." + x + "." + z + ".mca");
         this.name = world.getName() + "_" + "r." + x + "." + z + ".mca";
     }
 
-    public Region(World world, File regionFile) {
-        this.file = regionFile;
+    public RegionFile(World world, File regionFile) {
+        super(getRegionsFolderPath(world).toString(), regionFile.getName());
         this.name = world.getName() + "_" + regionFile.getName();
     }
 
@@ -32,11 +32,11 @@ public final class Region {
         if (obj.getClass() != this.getClass()) {
             return false;
         }
-        final Region other = (Region) obj;
-        if (other.file == null) {
+        final RegionFile other = (RegionFile) obj;
+        if (!other.exists()) {
             return false;
         }
-        return other.file.getName().equals(this.file.getName());
+        return other.getName().equals(this.getName());
     }
 
     public static Path getRegionsFolderPath(World world) {
@@ -56,12 +56,11 @@ public final class Region {
         return new Location(chunk.getWorld(), regionX, 0, regionZ);
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public String getName() {
+    public String getFullName() {
         return name;
     }
-}
 
+    public byte[] getBytes() throws IOException {
+        return Files.readAllBytes(Paths.get(getPath()));
+    }
+}
