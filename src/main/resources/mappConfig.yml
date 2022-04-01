@@ -20,9 +20,6 @@ players-data-publish-period: 20
 publish-regions-data: true
 region-images-publish-period: 60
 
-publish-server-info: true
-server-info-publish-period: 120
-
 
 # FORCE VISIBLE PLAYERS
 # Players in this list will be force visible on MAP server

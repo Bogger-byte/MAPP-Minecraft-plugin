@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import me.bogger.mapp.objects.RegionImage;
+import me.bogger.mapp.objects.RegionFile;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -31,15 +31,14 @@ public class MappAPIv1 implements MappAPI {
     private final String clientID;
     private final String clientSecret;
 
-    private TokenStorer tokenStorer;
+    private TokenManager token;
     private String serverInfo;
 
-    public MappAPIv1(
-            String mappRootHost,
-            String username,
-            String password,
-            String clientID,
-            String clientSecret) {
+    public MappAPIv1(String mappRootHost,
+                     String username,
+                     String password,
+                     String clientID,
+                     String clientSecret) {
         this.mappRootHost = mappRootHost;
         this.username = username;
         this.password = password;
@@ -65,13 +64,13 @@ public class MappAPIv1 implements MappAPI {
     @Override
     public void authorize()
             throws IOException, AuthenticationException, JsonSyntaxException {
-        this.tokenStorer = new TokenStorer(mappRootHost, username, password, clientID, clientSecret);
+        this.token = new TokenManager(mappRootHost, username, password, clientID, clientSecret);
 
         CloseableHttpClient client = HttpClients.createDefault();
         String url = mappRootHost + "/servers/me";
         HttpGet request = new HttpGet(url);
 
-        request.setHeader("Authorization", "Bearer " + tokenStorer.getAccessToken());
+        request.setHeader("Authorization", "Bearer " + token.getAccessToken());
         HttpResponse response = client.execute(request);
 
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
@@ -96,13 +95,13 @@ public class MappAPIv1 implements MappAPI {
     public StatusLine publishPlayersData(@NotNull JsonObject json)
             throws IOException, AuthenticationException, JsonSyntaxException {
         CloseableHttpClient client = HttpClients.createDefault();
-        String url = mappRootHost + "/servers/me/players-data";
+        String url = mappRootHost + "/server/" + clientID + "/players-data";
         HttpPost request = new HttpPost(url);
 
         String jsonString = json.toString();
         StringEntity entity = new StringEntity(jsonString, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
-        request.setHeader("Authorization", "Bearer " + tokenStorer.getAccessToken());
+        request.setHeader("Authorization", "Bearer " + token.getAccessToken());
 
         HttpResponse response = client.execute(request);
         StatusLine responseStatus = response.getStatusLine();
@@ -113,20 +112,19 @@ public class MappAPIv1 implements MappAPI {
     }
 
     @Override
-    public StatusLine publishRegionsData(@NotNull RegionImage[] images)
+    public StatusLine publishRegionsData(@NotNull RegionFile[] regions)
             throws IOException, AuthenticationException, JsonSyntaxException {
         CloseableHttpClient client = HttpClients.createDefault();
-        String url = mappRootHost + "/servers/me/regions";
+        String url = mappRootHost + "/server/" + clientID + "/region-image";
         HttpPost request = new HttpPost(url);
 
         MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
         entityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        for (RegionImage image : images) {
-            entityBuilder.addBinaryBody("region_image_uploads",
-                    image.getData(), ContentType.IMAGE_PNG, image.getName());
+        for (RegionFile region : regions) {
+            entityBuilder.addBinaryBody("regions", region.getBytes(), ContentType.DEFAULT_BINARY, region.getFullName());
         }
         request.setEntity(entityBuilder.build());
-        request.setHeader("Authorization", "Bearer " + tokenStorer.getAccessToken());
+        request.setHeader("Authorization", "Bearer " + token.getAccessToken());
 
         HttpResponse response = client.execute(request);
         StatusLine responseStatus = response.getStatusLine();
@@ -137,27 +135,7 @@ public class MappAPIv1 implements MappAPI {
     }
 
     @Override
-    public StatusLine publishServerInfo(@NotNull JsonObject json)
-            throws IOException, AuthenticationException, JsonSyntaxException {
-        CloseableHttpClient client = HttpClients.createDefault();
-        String url = mappRootHost + "/servers/me/info";
-        HttpPost request = new HttpPost(url);
-
-        String jsonString = json.toString();
-        StringEntity entity = new StringEntity(jsonString, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
-        request.setHeader("Authorization", "Bearer " + tokenStorer.getAccessToken());
-
-        HttpResponse response = client.execute(request);
-        StatusLine responseStatus = response.getStatusLine();
-        if (responseStatus.getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
-            throw new AuthenticationException();
-        }
-        return responseStatus;
-    }
-
-    @Override
-    public String getClientData() {
+    public String getServerInfo() {
         return serverInfo;
     }
 }

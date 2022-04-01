@@ -6,20 +6,22 @@ import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class RegionFile extends File {
-    private final String worldName;
+    private final String name;
 
     public RegionFile(@NotNull World world, int x, int z) {
         super(getRegionsFolderPath(world).toString(), "r." + x + "." + z + ".mca");
-        this.worldName = world.getName();
+        this.name = world.getName() + "_" + "r." + x + "." + z + ".mca";
     }
 
     public RegionFile(World world, File regionFile) {
         super(getRegionsFolderPath(world).toString(), regionFile.getName());
-        this.worldName = world.getName();
+        this.name = world.getName() + "_" + regionFile.getName();
     }
 
     @Override
@@ -54,8 +56,11 @@ public class RegionFile extends File {
         return new Location(chunk.getWorld(), regionX, 0, regionZ);
     }
 
-    @Override
-    public String getName() {
-        return worldName + "_" + super.getName();
+    public String getFullName() {
+        return name;
+    }
+
+    public byte[] getBytes() throws IOException {
+        return Files.readAllBytes(Paths.get(getPath()));
     }
 }
