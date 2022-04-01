@@ -29,7 +29,9 @@ public class ConfigManager {
             "publish-players-data",
             "players-data-publish-period",
             "publish-regions-data",
-            "region-images-publish-period"
+            "region-images-publish-period",
+            "publish-server-info",
+            "server-info-publish-period"
     );
 
     public ConfigManager() {

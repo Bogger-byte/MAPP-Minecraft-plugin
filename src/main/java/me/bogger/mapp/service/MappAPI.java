@@ -2,7 +2,7 @@ package me.bogger.mapp.service;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import me.bogger.mapp.objects.RegionFile;
+import me.bogger.mapp.objects.RegionImage;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthenticationException;
 import org.jetbrains.annotations.NotNull;
@@ -15,8 +15,10 @@ public interface MappAPI {
 
     StatusLine publishPlayersData(@NotNull JsonObject json)
             throws IOException, AuthenticationException, JsonSyntaxException;
-    StatusLine publishRegionsData(@NotNull RegionFile[] regions)
+    StatusLine publishRegionsData(@NotNull RegionImage[] images)
+            throws IOException, AuthenticationException, JsonSyntaxException;
+    StatusLine publishServerInfo(@NotNull JsonObject json)
             throws IOException, AuthenticationException, JsonSyntaxException;
 
-    String getServerInfo();
+    String getClientData();
 }

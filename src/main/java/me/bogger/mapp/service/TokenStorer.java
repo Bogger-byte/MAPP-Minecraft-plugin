@@ -21,7 +21,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TokenManager {
+public class TokenStorer {
     private final String mappRootHost;
 
     private final String username;
@@ -34,11 +34,11 @@ public class TokenManager {
     private Instant accessTokenExpireDate;
     private Instant refreshTokenExpireDate;
 
-    public TokenManager(@NotNull String mappRootHost,
-                        @NotNull String username,
-                        @NotNull String password,
-                        @NotNull String clientID,
-                        @NotNull String clientSecret) {
+    public TokenStorer(@NotNull String mappRootHost,
+                       @NotNull String username,
+                       @NotNull String password,
+                       @NotNull String clientID,
+                       @NotNull String clientSecret) {
         this.mappRootHost = mappRootHost;
         this.username = username;
         this.password = password;
@@ -70,14 +70,14 @@ public class TokenManager {
 
     private void authorize() throws IOException, AuthenticationException, JsonSyntaxException {
         CloseableHttpClient client = HttpClients.createDefault();
-        String url = mappRootHost + "/auth/jwt/token";
+        String url = mappRootHost + "/oauth/jwt/token";
         HttpPost request = new HttpPost(url);
 
         List<BasicNameValuePair> payload = new ArrayList<>();
         payload.add(new BasicNameValuePair("grant_type", "password"));
         payload.add(new BasicNameValuePair("username", username));
         payload.add(new BasicNameValuePair("password", password));
-        payload.add(new BasicNameValuePair("scope", "minecraft-server"));
+        payload.add(new BasicNameValuePair("scope", "MINECRAFT_SERVER"));
         payload.add(new BasicNameValuePair("client_id", clientID));
         payload.add(new BasicNameValuePair("client_secret", clientSecret));
         UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(payload);
@@ -96,7 +96,7 @@ public class TokenManager {
 
     private void refreshAccessToken() throws IOException, AuthenticationException, JsonSyntaxException {
         CloseableHttpClient client = HttpClients.createDefault();
-        String url = mappRootHost + "/auth/jwt/refresh";
+        String url = mappRootHost + "/oauth/jwt/refresh";
         HttpPost request = new HttpPost(url);
 
         request.setHeader("refresh-token", refreshToken);

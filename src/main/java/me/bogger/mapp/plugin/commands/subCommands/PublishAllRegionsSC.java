@@ -1,10 +1,12 @@
 package me.bogger.mapp.plugin.commands.subCommands;
 
+import me.bogger.mapp.objects.RegionImage;
 import me.bogger.mapp.plugin.Main;
 import me.bogger.mapp.plugin.utils.Messenger;
 import me.bogger.mapp.plugin.commands.SubCommand;
-import me.bogger.mapp.plugin.tasks.PublishRegionsTask;
+import me.bogger.mapp.plugin.tasks.PublishRegionImagesTask;
 import me.bogger.mapp.objects.RegionFile;
+import me.bogger.mapp.renderer.Renderer;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -19,10 +21,12 @@ import java.util.List;
 public class PublishAllRegionsSC extends SubCommand {
 
     private final Plugin plugin;
+    private final Renderer renderer;
 
     public PublishAllRegionsSC() {
         setName("publish-all-regions");
         this.plugin = Main.getInstance();
+        this.renderer = Main.getInstance().getRenderer();
     }
 
     @Override
@@ -51,7 +55,9 @@ public class PublishAllRegionsSC extends SubCommand {
                 .map(file -> new RegionFile(world, file))
                 .toArray(RegionFile[]::new);
 
-        new PublishRegionsTask(regionFileArray).runTaskAsynchronously(plugin);
+        RegionImage[] images = renderer.renderQueue(regionFileArray);
+
+        new PublishRegionImagesTask(images).runTaskAsynchronously(plugin);
     }
 
     @Override
